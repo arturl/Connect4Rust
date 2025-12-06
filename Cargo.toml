@@ -1,0 +1,25 @@
+[workspace]
+members = [
+    "connect4",
+    "server",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+authors = ["Connect4Rust"]
+
+[workspace.dependencies]
+anyhow = "1.0.79"
+axum = { version = "0.7.4", features = ["macros", "json"] }
+serde = { version = "1.0.193", features = ["derive"] }
+serde_json = "1.0.108"
+thiserror = "1.0.56"
+tokio = { version = "1.35.1", features = ["full"] }
+tower = "0.4.13"
+tower-http = { version = "0.5.0", features = ["trace", "cors"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["fmt", "env-filter"] }
+once_cell = "1.18.0"

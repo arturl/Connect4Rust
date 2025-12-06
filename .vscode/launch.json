@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug Server",
+            "program": "${workspaceFolder}/target/debug/server",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "cargo build server",
+            "sourceLanguages": ["rust"]
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug Server Tests",
+            "program": "${workspaceFolder}/target/debug/server",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "cargo test server",
+            "sourceLanguages": ["rust"]
+        }
+    ]
+}
