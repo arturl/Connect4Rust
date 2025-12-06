@@ -10,7 +10,7 @@ Stateless Connect 4 engine and HTTP API built with modern async Rust (`axum` + `
 
 ## API
 `GET /api/move?position=B3R3B2R4&level=8`
-- `position`: Move history as alternating tokens like `B3R3B2R4` (`B` = Blue, `R` = Red, columns are 1–7). The next move is inferred from the parity of that string.
+- `position`: Move history as alternating tokens like `B3R3B2R4` (`B` = Blue, `R` = Red, columns are 0–6). The next move is inferred from the parity of that string.
 - `level`: Search depth (1–15). Higher numbers play stronger but take longer.
 - Response: `{ "column": 3 }` (zero-based column index).
 - Caching: Responses are safe to cache but the server ships `Cache-Control: no-store` on the frontend requests.
