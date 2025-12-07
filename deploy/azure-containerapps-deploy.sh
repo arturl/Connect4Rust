@@ -24,6 +24,7 @@ az acr create -n "$ACR" -g "$RG" --sku Basic --admin-enabled true >/dev/null 2>&
 az acr login -n "$ACR"
 
 echo "Building linux/amd64 image in ACR (native build, no emulation)..."
+# Remove --no-cache if you want faster builds with layer caching
 az acr build --registry "$ACR" --image connect4rust:latest --platform linux/amd64 .
 
 echo "Deploying Container App $APP..."

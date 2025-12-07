@@ -4,6 +4,7 @@ const WIDTH = 7;
 const HEIGHT = 6;
 const CELL = 96;
 const PADDING = 24;
+const BUTTON_HEIGHT = 50;
 const GRAVITY = 0.9;
 const RESTITUTION = 0.35;
 
@@ -37,7 +38,7 @@ interface WinningLine {
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d")!;
 canvas.width = WIDTH * CELL + PADDING * 2;
-canvas.height = HEIGHT * CELL + PADDING * 2 + CELL;
+canvas.height = BUTTON_HEIGHT + PADDING + HEIGHT * CELL + PADDING * 2;
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 const header = document.createElement("header");
@@ -59,15 +60,6 @@ header.innerHTML = `
 const status = document.createElement("div");
 status.className = "status";
 status.textContent = "You are Blue. Choose a column.";
-
-const columnButtons = document.createElement("div");
-columnButtons.className = "column-buttons";
-for (let i = 0; i < WIDTH; i++) {
-  const btn = document.createElement("button");
-  btn.textContent = `${i}`;
-  btn.addEventListener("click", () => handleMove(i));
-  columnButtons.appendChild(btn);
-}
 
 const infoPanel = document.createElement("div");
 infoPanel.className = "info-panel";
@@ -91,7 +83,7 @@ scoreLine.append(scoreLabel, scoreValue);
 
 infoPanel.append(traceLine, scoreLine);
 
-app.append(header, columnButtons, canvas, status, infoPanel);
+app.append(header, canvas, status, infoPanel);
 
 const state: GameState = {
   board: Array.from({ length: HEIGHT }, () => Array<CellState>(WIDTH).fill(0)),
@@ -119,9 +111,21 @@ resetBtn.addEventListener("click", () => {
 
 canvas.addEventListener("click", async (ev) => {
   const rect = canvas.getBoundingClientRect();
-  const x = ev.clientX - rect.left - PADDING;
-  const col = Math.floor(x / CELL);
-  if (x < 0 || col < 0 || col >= WIDTH) return;
+  const clickX = ev.clientX - rect.left;
+  const clickY = ev.clientY - rect.top;
+
+  // Scale coordinates from display size to canvas size
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = clickX * scaleX;
+  const y = clickY * scaleY;
+
+  // Only handle clicks in the button row area
+  if (y < PADDING / 2 || y > BUTTON_HEIGHT + PADDING / 2) return;
+
+  const col = Math.floor((x - PADDING) / CELL);
+  if (col < 0 || col >= WIDTH) return;
+
   await handleMove(col);
 });
 
@@ -196,12 +200,13 @@ async function handleMove(col: number) {
 
 function spawnAnimation(col: number, row: number, color: string) {
   const x = PADDING + col * CELL + CELL / 2;
-  const targetY = PADDING + (HEIGHT - 1 - row) * CELL + CELL / 2;
+  const boardTop = BUTTON_HEIGHT + PADDING;
+  const targetY = boardTop + PADDING + (HEIGHT - 1 - row) * CELL + CELL / 2;
   animations.push({
     col,
     row,
     x,
-    y: PADDING - CELL,
+    y: boardTop - CELL,
     targetY,
     vy: 0,
     color,
@@ -264,6 +269,7 @@ function draw() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  drawButtons();
   drawBoard();
   drawPieces();
   drawAnimations();
@@ -329,10 +335,35 @@ function collectLine(
   return cells.length === 4 ? cells : null;
 }
 
+function drawButtons() {
+  for (let col = 0; col < WIDTH; col++) {
+    const x = PADDING + col * CELL;
+    const y = PADDING / 2;
+    const w = CELL - 12;
+    const h = BUTTON_HEIGHT - 10;
+
+    // Button background
+    ctx.fillStyle = "rgba(56, 189, 248, 0.1)";
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
+    ctx.lineWidth = 1;
+    roundRect(x + 6, y, w, h, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    // Button text
+    ctx.fillStyle = "#e5e7eb";
+    ctx.font = "700 16px Space Grotesk, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`${col}`, x + CELL / 2, y + h / 2);
+  }
+}
+
 function drawBoard() {
+  const boardTop = BUTTON_HEIGHT + PADDING;
   ctx.fillStyle = "#111827";
   const boardX = PADDING / 2;
-  const boardY = PADDING / 2;
+  const boardY = boardTop + PADDING / 2;
   const boardW = WIDTH * CELL + PADDING;
   const boardH = HEIGHT * CELL + PADDING;
   roundRect(boardX, boardY, boardW, boardH, 18);
@@ -342,7 +373,7 @@ function drawBoard() {
   for (let col = 0; col < WIDTH; col++) {
     for (let row = 0; row < HEIGHT; row++) {
       const x = PADDING + col * CELL + CELL / 2;
-      const y = PADDING + (HEIGHT - 1 - row) * CELL + CELL / 2;
+      const y = boardTop + PADDING + (HEIGHT - 1 - row) * CELL + CELL / 2;
       ctx.beginPath();
       ctx.arc(x, y, CELL * 0.35, 0, Math.PI * 2);
       ctx.fill();
@@ -374,8 +405,9 @@ function drawAnimations() {
 }
 
 function drawDisc(col: number, row: number, color: string, pulse: boolean) {
+  const boardTop = BUTTON_HEIGHT + PADDING;
   const x = PADDING + col * CELL + CELL / 2;
-  const y = PADDING + (HEIGHT - 1 - row) * CELL + CELL / 2;
+  const y = boardTop + PADDING + (HEIGHT - 1 - row) * CELL + CELL / 2;
   drawDiscAt(x, y, color, pulse);
 }
 
