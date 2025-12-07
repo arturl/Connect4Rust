@@ -33,6 +33,20 @@ npm install
 npm run build
 ```
 
+## Container build and Azure deploy (Container Apps)
+Build and run locally:
+```bash
+docker build -t connect4:latest .
+docker run -p 3000:3000 connect4:latest
+```
+
+Deploy to Azure Container Apps via ACR (requires: az CLI logged in):
+```bash
+./deploy/azure-containerapps-deploy.sh
+# Script outputs the URL at the end, or fetch it manually:
+az containerapp show -n connect4rust-app -g Connect4Rust --query properties.configuration.ingress.fqdn -o tsv
+```
+
 ## Testing
 - Engine tests: `cargo test -p connect4`
 - API tests: `cargo test -p server`
