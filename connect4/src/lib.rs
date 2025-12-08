@@ -91,6 +91,26 @@ impl GameState {
         }
     }
 
+    // For debugging/testing
+    pub fn print_board(&self) {
+        for row in (0..HEIGHT).rev() {
+            eprint!("Row {}: ", row);
+            for col in 0..WIDTH {
+                let bit = bit_for(col, row);
+                let ch = if (self.players[Player::Red.idx()] & bit) != 0 {
+                    'R'
+                } else if (self.players[Player::Blue.idx()] & bit) != 0 {
+                    'B'
+                } else {
+                    '.'
+                };
+                eprint!("{} ", ch);
+            }
+            eprintln!();
+        }
+        eprintln!("       0 1 2 3 4 5 6");
+    }
+
     pub fn from_history(moves: &[TypedMove]) -> Result<Self, GameError> {
         if moves.is_empty() {
             return Ok(Self::empty(Player::Red));
@@ -223,7 +243,7 @@ fn choose_move(state: &mut GameState, depth: usize) -> Result<usize, GameError> 
         let mut child = state.clone();
         let outcome = child.play(col)?;
         let val = if outcome.won {
-            WIN_SCORE - 1
+            WIN_SCORE
         } else if child.is_full() {
             0
         } else {
@@ -255,7 +275,7 @@ fn negamax(state: &GameState, depth: usize, mut alpha: i32, beta: i32, player: P
         let mut child = state.clone();
         let outcome = child.play(col).expect("legal move must succeed");
         let score = if outcome.won {
-            WIN_SCORE - 1 + depth as i32
+            WIN_SCORE
         } else if child.is_full() {
             0
         } else {
